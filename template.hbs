@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Searcher</title>
+    <script type="module" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.min.js"></script> 
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+		<script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
+		<script>
+			var colors = ['#ffcccc', '#ccffcc', '#ccccff', '#ffffcc', '#ffccff', '#ccffff', '#ffcc99', '#cc99cc']
+			var myChart = undefined
+			fetch('{{api}}/map').then(
+				async res=>{
+					const response = await res.json()
+					const edges = JSON.parse(response).edges
+					console.log(edges)
+					var c = document.getElementById("map");
+					var ctx = c.getContext("2d");
+					ctx.translate(2000, 1200);
+					ctx.scale(2,2)
+						ctx.beginPath();
+						ctx.lineWidth = 1
+                        ctx.moveTo(0, 0);
+						ctx.lineTo(-41.45624108733179 % 1 * 100,-72.93056270579201 % 1 * 100);
+						ctx.closePath();
+						ctx.stroke();
+					
+					for(edge of edges){
+						ctx.beginPath();
+						ctx.lineWidth = 0.2
+						const headlen = 1.5
+						const fromx = edge[0][0] * 10 % 1 * 1500,fromy = edge[0][1] * 10 % 1 * 1500
+						const tox = edge[1][0] * 10 % 1 * 1500, toy = edge[1][1]* 10 % 1 * 1500
+                        ctx.moveTo(fromx, fromy);
+						ctx.lineTo(tox, toy);
+						var dx = tox - fromx;
+						var dy = toy - fromy;
+						var angle = Math.atan2(dy, dx);
+						ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+						ctx.moveTo(tox, toy);
+						ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+						
+						ctx.closePath();
+
+						ctx.font = "5px Arial";
+						ctx.strokeText(edge[3], fromx-0.1, fromy);
+						ctx.stroke();
+					}
+					
+				}
+			)
+		</script>
+	</head>
+	<body class="flex flex-col justify-between h-screen">
+		<div class="w-screen flex flex-col justify-start items-center">
+			<h1 class="text-2xl text-slate-700 font-semibold">Visual Maze Solution Searcher v2 by Juanpurpp</h1>
+			<div class="w-full flex flex-row p-4 text-slate-600">
+				<div id="map_box" class="w-full p-2 rounded-md border-2 border-sky-200 justify-center items-center">
+					<canvas id="map" width="600" height="600" style="border:1px solid #000000;">
+					</canvas>
+				</div>
+				<form class="w-full flex flex-col space-y-2 justify-start p-4" action="" onsubmit="sendStart(event)">
+					<div class="w-full flex flex-row justify-start items-center">
+						<p>Delay: </p>
+						<input class="m-1 p-0.5 rounded-md border border-slate-500" type="number" id="delay" value="0.005" min="0" max="50" step="0.005" autocomplete="on" required/>
+					</div>
+					<div class="w-full flex flex-row justify-start items-center space-x-3">
+						<div class="flex flex-row items-center space-x-1">
+							<input type="radio" id="breadth" name="alg" value="breadth" checked />
+							<label for="breadth">Breadth First Search</label>
+						</div>
+						<div class="flex flex-row items-center space-x-1">
+							<input type="radio" id="depth" name="alg" value="depth" checked />
+							<label for="depth">Depth First Search</label>
+						</div>
+						<div class="flex flex-row items-center space-x-1">
+							<input type="radio" id="best" name="alg" value="best" />
+							<label for="best">Best First Search</label>
+						</div>
+					</div>
+					<div class="w-full">
+						<div class="flex flex-row items-center space-x-1">
+							<input autocomplete="off" onchange="onStepModeChange(event)" class="rounded-md" type="checkbox" id="step" checked="false"/>
+							<label for="step">Activate step by step mode</label>
+						</div>
+						
+					</div>
+					<div class="w-full flex flex-col justify-center mt-32 space-y-1">
+						<button id="start-button" class="w-full border border-slate-600 bg-slate-100 px-2 py-1 rounded disabled:bg-gray-300 disabled:text-gray-500">Start</button>
+						<button disabled id="step-button" type="button" onclick="sendNextStep(event)" class="hidden w-full border border-slate-600 bg-slate-100 px-2 py-1 rounded disabled:bg-gray-300 disabled:text-gray-500">Next Step</button>
+					</div>
+					<div class="w-full flex flex-col ">
+						<p class="font-semibold"> Results: </p>
+						<div class="flex flex-row">
+							<div class="w-full flex flex-col justify-stretch text-sm px-4">
+								<p title="Purple ones, times that a node was checked if was goal" id="iterations" class="w-full">Iterations: </p>
+								<p title="Yellow ones, choices that were not checked" id="left" class="w-full">Left: </p>
+								<p title="Total states that were considered in memory" id="visited" class="w-full">Visited: </p>
+							</div>
+							<div class="w-full flex flex-col justify-stretch text-sm px-4">
+								<p title="Depth level of solution node" id="depth-level" class="w-full">Depth level: </p>
+								<p title="Time of execution" id="time" class="w-full">Time: </p>
+							</div>
+						</div>
+						<canvas id="benchmarks"></canvas>
+					</div>
+				</form>
+			</div>
+		</div>
+		<footer class="w-full flex flex-row space-x-1 justify-center items-center text-sm font-light text-slate-600 bg-slate-50">
+			<i class="fa fa-github"></i>
+			<p class="mr-1" >Project repo: </p>
+  		<a class="text-blue-600" target="_blank" href="https://github.com/juanpurpp/visual-searcher2">github.com/juanpurpp/visual-searcher2</a>
+		</footer>
+	</body>
+</html>
