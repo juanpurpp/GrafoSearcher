@@ -32,5 +32,13 @@ class State:
             print(current.node.get_name()+'->')
             current = current.father
 
+    def get_path(self):
+        current = self
+        result= []
+        while current is not None:
+            result.append(current.node.get_name())
+            current = current.father
+        return result
+
     def __eq__(self, other):
         return self.node == other.node

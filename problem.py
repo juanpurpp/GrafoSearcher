@@ -13,6 +13,9 @@ g = gr.add_node(-41.45638015618045, -72.9253162897222, 'G')
 h = gr.add_node(-41.4553267985148, -72.93048758824754, 'H')
 i = gr.add_node(-41.45592182708473, -72.92790193898487, 'I')
 j = gr.add_node(-41.45597007240521, -72.92506952651458, 'J')
+k = gr.add_node(-41.454863758080805, -72.93043643406826, 'K')
+l = gr.add_node(-41.45552871157676, -72.92781660259001, 'L')
+m = gr.add_node(-41.45559771579442, -72.92483685816109, 'M')
 
 a.connect_to(b, 3)
 b.connect_to(c, 3)
@@ -24,6 +27,9 @@ f.connect_to(g, 1)
 h.connect_to(i, 1)
 j.connect_to(i, 1, False)
 
+k.connect_to(l, 1)
+l.connect_to(m, 1)
+
 a.connect_to(d,2)
 d.connect_to(h,2)
 
@@ -34,5 +40,9 @@ c.connect_to(f, 1)
 
 g.connect_to(c, 3, False) #non bidirectional
 j.connect_to(g, 3, False) #non bidirectional
+
+h.connect_to(k, 2)
+i.connect_to(l, 2)
+m.connect_to(j, 2, False)
 
 problem_map = gr

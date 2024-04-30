@@ -50,14 +50,19 @@
 			)
 			var ws = new WebSocket('ws://localhost:8000/ws');
 			ws.onmessage = function(event) {
-			var messages = document.getElementById('messages')
-			var message = document.createElement('li')
-			var content = document.createTextNode(event.data)
-			message.appendChild(content)
-			messages.appendChild(message)
+				const data = JSON.parse(event.data)
+				var messages = document.getElementById('results')
+				var message = document.createElement('li')
+				console.log(data)
+				const text = data.path.reduce( ( res, name )=> res+' -> '+name,'' )
+				var content = document.createTextNode(text)
+				message.appendChild(content)
+				messages.appendChild(message)
             };
             function sendStart(event) {
-				ws.send(JSON.stringify({action: 'start', from: 'A', to: 'F', delay: parseFloat(delay.value), alg: '1', stepMode: true}))
+				let delay = document.getElementById("delay");
+				let alg = document.querySelector('input[name="alg"]:checked').value;
+				ws.send(JSON.stringify({action: 'start', from: 'A', to: 'J', delay: parseFloat(delay.value), alg: alg, stepMode: false}))
 				event.preventDefault()
             }
 		</script>
@@ -77,16 +82,16 @@
 					</div>
 					<div class="w-full flex flex-row justify-start items-center space-x-3">
 						<div class="flex flex-row items-center space-x-1">
-							<input type="radio" id="breadth" name="alg" value="breadth" checked />
-							<label for="breadth">Breadth First Search</label>
+							<input type="radio" id="normal" name="alg" value="normal" checked />
+							<label for="normal">A*</label>
 						</div>
 						<div class="flex flex-row items-center space-x-1">
-							<input type="radio" id="depth" name="alg" value="depth" checked />
-							<label for="depth">Depth First Search</label>
+							<input type="radio" id="greedy" name="alg" value="greedy" />
+							<label for="greedy">Greedy search</label>
 						</div>
 						<div class="flex flex-row items-center space-x-1">
-							<input type="radio" id="best" name="alg" value="best" />
-							<label for="best">Best First Search</label>
+							<input type="radio" id="uniform" name="alg" value="uniform" />
+							<label for="uniform">Uniform Cost Search</label>
 						</div>
 					</div>
 					<div class="w-full">
@@ -102,6 +107,9 @@
 					</div>
 					<div class="w-full flex flex-col ">
 						<p class="font-semibold"> Results: </p>
+						<div class="flex flex-row">
+							<ul id="results"></ul>
+						</div>
 						<div class="flex flex-row">
 							<div class="w-full flex flex-col justify-stretch text-sm px-4">
 								<p title="Purple ones, times that a node was checked if was goal" id="iterations" class="w-full">Iterations: </p>

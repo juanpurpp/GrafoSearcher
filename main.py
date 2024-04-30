@@ -44,5 +44,7 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_json(response)
         if data['stepMode'] == True:
           while (await websocket.receive_text()) != 'next': pass
-      agent.start_a(data['from'], data['to'], lambda: 1)
+      if data['alg'] == 'normal': await agent.start_a(data['from'], data['to'], sendIteration)
+      elif data['alg'] == 'greedy': await agent.start_greedy(data['from'], data['to'], sendIteration) 
+      elif data['alg'] == 'uniform': await agent.start_uniform(data['from'], data['to'], sendIteration)
       print('termino')
