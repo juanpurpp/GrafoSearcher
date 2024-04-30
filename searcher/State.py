@@ -38,7 +38,8 @@ class State:
         while current is not None:
             result.append(current.node.get_name())
             current = current.father
-        return result
+        return list(reversed(result))
+
 
     def __eq__(self, other):
         return self.node == other.node

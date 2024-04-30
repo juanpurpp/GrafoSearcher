@@ -43,6 +43,8 @@
 
 						ctx.font = "5px Arial";
 						ctx.strokeText(edge[3], fromx-0.1, fromy);
+						ctx.font = "5px Arial";
+						ctx.strokeText(edge[2], (fromx+tox)/2+0.1, (fromy+toy)/2+0.1);
 						ctx.stroke();
 					}
 					
@@ -58,18 +60,27 @@
 				var content = document.createTextNode(text)
 				message.appendChild(content)
 				messages.appendChild(message)
+
+				document.getElementById('visited').innerHTML = 'Explored: '+ data.visited
+				document.getElementById('left').innerHTML = 'Left: '+ data.left
+				document.getElementById('iterations').innerHTML = 'Iterations: '+ data.iterations
+				document.getElementById('time').innerHTML = 'Time: '+ data.time
+				document.getElementById('depth-level').innerHTML = 'Depth level: '+ data.current_depth
+				document.getElementById('cost').innerHTML = 'Cost: '+ data.cost
             };
             function sendStart(event) {
 				let delay = document.getElementById("delay");
+				let from = document.getElementById("from").value;
+				let to = document.getElementById("to").value;
 				let alg = document.querySelector('input[name="alg"]:checked').value;
-				ws.send(JSON.stringify({action: 'start', from: 'A', to: 'J', delay: parseFloat(delay.value), alg: alg, stepMode: false}))
+				ws.send(JSON.stringify({action: 'start', from: from, to: to, delay: parseFloat(delay.value), alg: alg, stepMode: false}))
 				event.preventDefault()
             }
 		</script>
 	</head>
 	<body class="flex flex-col justify-between h-screen">
 		<div class="w-screen flex flex-col justify-start items-center">
-			<h1 class="text-2xl text-slate-700 font-semibold">Visual Maze Solution Searcher v2 by Juanpurpp</h1>
+			<h1 class="text-2xl text-slate-700 font-semibold">Graph solutioner by Juanpurpp</h1>
 			<div class="w-full flex flex-row p-4 text-slate-600">
 				<div id="map_box" class="w-full p-2 rounded-md border-2 border-sky-200 justify-center items-center">
 					<canvas id="map" width="600" height="600" style="border:1px solid #000000;">
@@ -78,7 +89,11 @@
 				<form class="w-full flex flex-col space-y-2 justify-start p-4" action="" onsubmit="sendStart(event)">
 					<div class="w-full flex flex-row justify-start items-center">
 						<p>Delay: </p>
-						<input class="m-1 p-0.5 rounded-md border border-slate-500" type="number" id="delay" value="0.005" min="0" max="50" step="0.005" autocomplete="on" required/>
+						<input class="m-1 mr-2 p-0.5 rounded-md border border-slate-500" type="number" id="delay" value="0.005" min="0" max="50" step="0.005" autocomplete="on" required/>
+						<p>From: </p>
+						<input class="m-1 mr-2 p-0.5 rounded-md border border-slate-500" type="text" id="from" value="A"  autocomplete="on" required/>
+						<p>To: </p>
+						<input class="m-1      p-0.5 rounded-md border border-slate-500" type="text" id="to" value="J" autocomplete="on" required/>
 					</div>
 					<div class="w-full flex flex-row justify-start items-center space-x-3">
 						<div class="flex flex-row items-center space-x-1">
@@ -119,6 +134,7 @@
 							<div class="w-full flex flex-col justify-stretch text-sm px-4">
 								<p title="Depth level of solution node" id="depth-level" class="w-full">Depth level: </p>
 								<p title="Time of execution" id="time" class="w-full">Time: </p>
+								<p title="Cost of path" id="cost" class="w-full">Cost: </p>
 							</div>
 						</div>
 					</div>
