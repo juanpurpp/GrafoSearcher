@@ -7,7 +7,7 @@ from os import environ
 import json
 
 from problem import problem_map
-
+from searcher.Searcher import Searcher
 compiler = Compiler()
 
 app = FastAPI()
@@ -15,7 +15,7 @@ app = FastAPI()
 hbs = open('./template.hbs').read()
 
 template = compiler.compile(hbs)
-html = template({"api": environ.get("API_URL", "http://localhost:8000")})
+html = template({"api": environ.get("API_URL", "http://localhost:8000"), "ws_api": environ.get("WS_URL", "ws://localhost:8000")})
 
 
 
@@ -29,10 +29,10 @@ async def get():
   return json.dumps({
     "edges": problem_map.get_raw_edges(),
   })
-#@app.websocket("/ws")
-'''
+
+@app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
-  agent = Searcher(problem)
+  agent = Searcher(problem_map)
 
   await websocket.accept()
 
@@ -44,7 +44,5 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_json(response)
         if data['stepMode'] == True:
           while (await websocket.receive_text()) != 'next': pass
-      if data['alg'] == None or data['alg'] == 'depth': await agent.startDepth(sendIteration, data["delay"])
-      elif data['alg'] == 'best': await agent.startBest(sendIteration, data["delay"])
-      elif data['alg'] == 'breadth': await agent.startBreadth(sendIteration, data["delay"])
-'''
+      agent.start_a(data['from'], data['to'], lambda: 1)
+      print('termino')

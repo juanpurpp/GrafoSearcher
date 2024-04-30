@@ -17,6 +17,9 @@ class Node:
             goal_node.edges.append(new_bidirectional_edge)
             self.graph.add_edge(new_bidirectional_edge)
         
+    def get_choices(self):
+        return [[edge.get_end(), edge.get_weight()] for edge in self.edges]
+
     def get_pos(self):
         return [self.x, self.y]
 

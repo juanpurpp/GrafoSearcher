@@ -48,6 +48,18 @@
 					
 				}
 			)
+			var ws = new WebSocket('ws://localhost:8000/ws');
+			ws.onmessage = function(event) {
+			var messages = document.getElementById('messages')
+			var message = document.createElement('li')
+			var content = document.createTextNode(event.data)
+			message.appendChild(content)
+			messages.appendChild(message)
+            };
+            function sendStart(event) {
+				ws.send(JSON.stringify({action: 'start', from: 'A', to: 'F', delay: parseFloat(delay.value), alg: '1', stepMode: true}))
+				event.preventDefault()
+            }
 		</script>
 	</head>
 	<body class="flex flex-col justify-between h-screen">
@@ -101,7 +113,6 @@
 								<p title="Time of execution" id="time" class="w-full">Time: </p>
 							</div>
 						</div>
-						<canvas id="benchmarks"></canvas>
 					</div>
 				</form>
 			</div>
